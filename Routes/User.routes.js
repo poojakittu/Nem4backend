@@ -7,25 +7,31 @@ const {connection}=require("../db")
 
 userRoutes.post("/register",async (req,res)=>{
   // const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    const {name,email,password}=req.body;
-    const isUser=await UserModel.findOne({email});
-    if(isUser){
+    const {name,email,gender,password}=req.body;
+    const user=await UserModel.findOne({email});
+
+    if(user){
 
         res.send({msg:"User Already Exists"})
     }else{
 
         bcrypt.hash(password,4,async function(err,hash){
+            
             if(err){
-                res.send({msg:"Something went wrong please try after sometime..."})
+                res.send({msg:"Something went wrong please try after sometime"})
             }
             const new_user = new UserModel({
-                name,email,password:hash
+
+                name,email,gender,password:hash
             });
             try{
                 await new_user.save();
                 res.send({msg:"Signup Sucessfull"})
+
             }catch(err){
+
                 console.log(err)
+
                 res.send({msg:"someting went wrong"})
             }
 
