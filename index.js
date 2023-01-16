@@ -22,7 +22,7 @@ app.get("/", (req, res) => {
 
 app.use("/users", userRoutes);
 
-app.use(authenticate);
+// app.use(authenticate);
 
 app.use("/posts", postRoutes);
 
