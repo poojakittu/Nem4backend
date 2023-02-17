@@ -4,18 +4,16 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const saltRounds = +process.env.saltRounds;
-const { authenticate } = require("../middleware/authentication.middleware");
 
-const { UserModel } = require("../Model/User.model");
+const { WenderModel } = require("../Model/Wender.model");
 
-const UserRouter = express.Router();
+const wenderRouter = express.Router();
 
-UserRouter.post("/register", async (req, res) => {
+wenderRouter.post("/register", async (req, res) => {
   const payload = req.body;
-  console.log(payload)
 
   try {
-    const email = await UserModel.findOne({ email: payload.email });
+    const email = await WenderModel.findOne({ email: payload.email });
     if (email) {
       res
         .status(200)
@@ -29,7 +27,7 @@ UserRouter.post("/register", async (req, res) => {
           throw err;
         } else {
           payload.password = hash;
-          const user = new UserModel(payload);
+          const user = new WenderModel(payload);
           await user.save();
           res.redirect("http://127.0.0.1:5500/Routes/hi.html");
         }
@@ -42,11 +40,12 @@ UserRouter.post("/register", async (req, res) => {
     console.log(error);
   }
 });
-UserRouter.post("/login", async (req, res) => {
+
+wenderRouter.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await UserModel.findOne({ email });
+    const user = await WenderModel.findOne({ email });
     if (user) {
       bcrypt.compare(password, user.password, (err, result) => {
         if (err) {
@@ -60,6 +59,7 @@ UserRouter.post("/login", async (req, res) => {
                 Email: user.email,
                 userType: user.userType,
               },
+              
               process.env.key,
               (err, token) => {
                 if (err) {
@@ -90,19 +90,4 @@ UserRouter.post("/login", async (req, res) => {
   }
 });
 
-UserRouter.get("/", authenticate, async (req, res) => {
-  const payload = req.body;
-
-  try {
-    const product = await UserModel.find({ _id: payload.userId });
-    res.send({ data: product });
-  } catch (error) {
-    console.log("error", error);
-    res.status(500).send({
-      error: true,
-      msg: "something went wrong",
-    });
-  }
-});
-
-module.exports = { UserRouter };
+module.exports = { wenderRouter };
